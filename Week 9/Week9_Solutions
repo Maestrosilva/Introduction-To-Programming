@@ -1,0 +1,464 @@
+#include <iostream>
+
+const size_t ARRAY_SIZE = 1e3;
+const size_t MATRIX_SIZE = 1e2;
+
+bool isLetter(char symbol) {
+    return (symbol >= 'A' && symbol <= 'Z') || (symbol >= 'a' && symbol <= 'z');
+}
+
+void swap(char& a, char& b) {
+    a ^= b;
+    b ^= a;
+    a ^= b;
+}
+
+int toInt(char symbol) {
+    if (symbol >= '0' && symbol <= '9') {
+        return symbol - '0';
+    }
+    return -1;
+}
+
+size_t strLen(const char* str) {
+    if (str == nullptr) {
+        return 0;
+    }
+    size_t counter = 0;
+    while (str[counter++]);
+    return counter - 1;
+}
+
+size_t matrixLen(char** matrix) {
+    if (matrix == nullptr) {
+        return 0;
+    }
+    size_t counter = 0;
+    while (matrix[counter][0]) {
+        counter++;
+    }
+    return counter;
+}
+
+void setValue(char* arr, const char* value) {
+    if (arr == nullptr) {
+        return;
+    }
+    size_t length = strLen(value);
+    for (size_t i = 0; i <= length; i++) {
+        arr[i] = value[i];
+    }
+}
+
+void append(char* str, char element) {
+    if (str == nullptr) {
+        return;
+    }
+    size_t length = strLen(str);
+    str[length] = element;
+    str[length + 1] = '\0';
+}
+
+void insert(char* str, size_t index, char element) {
+    if (str == nullptr) {
+        return;
+    }
+    size_t length = strLen(str);
+    for (int i = length - 1; i >= index; i--) {
+        str[i] = str[i - 1];
+    }
+    str[index] = element;
+}
+
+short strCompare(const char* str1, const char* str2) {
+    if (str1 == nullptr || str2 == nullptr) {
+        return -2;
+    }
+    int index = 0;
+    while (str1[index] && str2[index]) {
+        if (str1[index] > str2[index]) {
+            return 1;
+        }
+        if (str2[index] > str1[index]) {
+            return -1;
+        }
+        index++;
+    }
+    return 0;
+}
+
+char* subStr(const char* str, size_t startIndex, size_t length) {
+    if (str == nullptr) {
+        return nullptr;
+    }
+    char* result = new char[length + 1];
+    for (int i = 0; i < length; i++) {
+		result[i] = str[startIndex + i];
+	}
+	result[length] = 0;
+    return result;
+}
+
+bool removeAt(char* str, size_t index) {
+    if (str == nullptr) {
+        return 0;
+    }
+    bool found = false;
+    size_t length = strLen(str);
+    for (int i = index; i < length; i++) {
+        str[i] = str[i + 1];
+        found = true;
+    }
+    return found;
+}
+
+bool removeAll(char* str, char symbol) {
+    if (str == nullptr) {
+        return 0;
+    }
+    bool found = false;
+    for (size_t i = 0; i < strLen(str);) {
+        if (str[i] == symbol) {
+            removeAt(str, i);
+            found = true;
+        }
+        else {
+            i++;
+        }
+    }
+    return found;
+}
+
+bool replaceAll(char* text, const char* oldStr, const char* newStr) {
+    if (text == nullptr || oldStr == nullptr || newStr == nullptr) {
+        return 0;
+    }
+    bool change = false;
+    size_t textLength = strLen(text);
+    size_t oldCharLength = strLen(oldStr);
+    size_t newCharLength = strLen(newStr);
+    for (size_t i = 0; i < textLength; i++) {
+        char* current = subStr(text, i, oldCharLength);
+        if (!strCompare(current, oldStr)) {
+            change = true;
+            for (int j = 0; j < oldCharLength; j++) {
+                removeAt(text, i);
+            }
+            for (int j = 0; j < newCharLength; j++) {
+                insert(text, i++, newStr[j]);
+            }
+        }
+        delete[] current;
+    }
+    return change;
+}
+
+char toUpper(char symbol) {
+    if (symbol >= 'a' && symbol <= 'z') {
+        return symbol - ('a' - 'A');
+    }
+    return symbol;
+}
+
+void toUpper(char* text) {
+    if (text == nullptr) {
+        return;
+    }
+    size_t length = strLen(text);
+    for (size_t i = 0; i < length; i++) {
+        text[i] = toUpper(text[i]);
+    }
+}
+
+char toLower(char symbol) {
+    if (symbol >= 'A' && symbol <= 'Z') {
+        return symbol + ('a' - 'A');
+    }
+    return symbol;
+}
+
+void toLower(char* text) {
+    if (text == nullptr) {
+        return;
+    }
+    size_t length = strLen(text);
+    for (size_t i = 0; i < length; i++) {
+        text[i] = toLower(text[i]);
+    }
+}
+
+unsigned* getNumberOccurences(const char* text) {
+    if (text == nullptr) {
+        return nullptr;
+    }
+    unsigned* result = new unsigned[10] {0};
+    size_t length = strLen(text);
+    for (size_t i = 0; i < length; i++) {
+        int digit = toInt(text[i]);
+        if (digit != -1) {
+            result[digit]++;
+        }
+    }
+    return result;
+}
+
+void capitalize(char* text) {
+    if (text == nullptr) {
+        return;
+    }
+    size_t length = strLen(text);
+    text[0] = toUpper(text[0]);
+    for (size_t i = 1; i < length; i++) {
+        if (text[i - 1] == ' ') {
+            text[i] = toUpper(text[i]);
+        }
+    }
+}
+
+char* excratctLastWord(const char* text) {
+    if (text == nullptr) {
+        return nullptr;
+    }
+    size_t length = strLen(text);
+    char* result = new char[length + 1];
+    size_t index = length - 1;
+    while (index >= 0 && isLetter(text[index])) {
+        index--;
+    }
+    index++;
+    size_t resultIndex = 0;
+    for (size_t i = index; text[i] && isLetter(text[i]); i++) {
+        result[resultIndex++] = text[i];
+    }
+    result[resultIndex] = 0;
+    return result;
+}
+
+char** separateWords(const char* text) {
+    if (text == nullptr) {
+        return nullptr;
+    }
+    size_t length = strLen(text);
+    char** result = new char* [MATRIX_SIZE];
+    for (size_t i = 0; i < MATRIX_SIZE; i++) {
+        result[i] = new char[ARRAY_SIZE] {0};
+    }
+    size_t wordIndex = 0;
+    size_t currentWordLength = 0;
+    for (size_t i = 0; i < length; i++) {
+        if (isLetter(text[i])) {
+            result[wordIndex][currentWordLength++] = text[i];
+        }
+        else if (currentWordLength > 0) {
+            result[wordIndex][currentWordLength] = 0;
+            wordIndex++;
+            currentWordLength = 0;
+        }
+    }
+    if (currentWordLength > 0) {
+        result[wordIndex][currentWordLength] = 0;
+        wordIndex++;
+    }
+    result[wordIndex][0] = 0;
+    return result;
+}
+
+unsigned wordCount(const char* text) {
+    if (text == nullptr) {
+        return 0;
+    }
+    char** words = separateWords(text);
+    unsigned count = matrixLen(words);
+    for (size_t i = 0; i < count; i++) {
+        delete[] words[i];
+    }
+    delete[] words;
+    return count;
+}
+
+char* getMostCommonWord(const char* text) {
+    if (text == nullptr) {
+        return nullptr;
+    }
+    char* lowerText = new char[strLen(text) + 1];
+    setValue(lowerText, text);
+    toLower(lowerText);
+    char** words = separateWords(lowerText);
+    size_t wordCount = matrixLen(words);
+    char* result = new char[ARRAY_SIZE] {0};
+    unsigned maxOccurrences = 0;
+    for (size_t i = 0; i < wordCount; i++) {
+        unsigned currentOccurrences = 0;
+        for (size_t j = 0; j < wordCount; j++) {
+            if (!strCompare(words[i], words[j])) {
+                currentOccurrences++;
+            }
+        }
+        if (currentOccurrences > maxOccurrences) {
+            maxOccurrences = currentOccurrences;
+            setValue(result, words[i]);
+        }
+    }
+    for (size_t i = 0; i < wordCount; i++) {
+        delete[] words[i];
+    }
+    delete[] words;
+    delete[] lowerText;
+    return result;
+}
+
+char* getSmallestWordLexicographically(const char* text) {
+    if (text == nullptr) {
+        return nullptr;
+    }
+    char* lowerText = new char[strLen(text) + 1];
+    setValue(lowerText, text);
+    toLower(lowerText);
+    char** words = separateWords(lowerText);
+    size_t wordCount = matrixLen(words);
+    char* result = new char[ARRAY_SIZE];
+    setValue(result, words[0]);
+    for (size_t i = 1; i < wordCount; i++) {
+        if (strCompare(result, words[i]) == 1) {
+            setValue(result, words[i]);
+        }
+    }
+
+    for (size_t i = 0; i < wordCount; i++) {
+        delete[] words[i];
+    }
+    delete[] words;
+    delete[] lowerText;
+    return result;
+}
+
+void ex1() {
+    char* str = new char[ARRAY_SIZE];
+    char symbol;
+    std::cin.getline(str, ARRAY_SIZE);
+    std::cin >> symbol;
+    removeAll(str, symbol);
+    std::cout << str;
+    delete[] str;
+}
+
+void ex2() {
+    char* text = new char[ARRAY_SIZE];
+    char* where = new char[ARRAY_SIZE];
+    char* what = new char[ARRAY_SIZE];
+    std::cin.getline(text, ARRAY_SIZE);
+    std::cin.getline(where, ARRAY_SIZE);
+    std::cin.getline(what, ARRAY_SIZE);
+    replaceAll(text, where, what);
+    std::cout << text;
+    delete[] text;
+    delete[] where;
+    delete[] what;
+}
+
+void ex3() {
+    char* text = new char[ARRAY_SIZE];
+    std::cin.getline(text, ARRAY_SIZE);
+    toUpper(text);
+    std::cout << "To upper ->  " << text << std::endl;
+    toLower(text);
+    std::cout << "To lower ->  " << text;
+    delete[] text;
+}
+
+void ex4() {
+    char* text = new char[ARRAY_SIZE];
+    std::cin.getline(text, ARRAY_SIZE);
+    unsigned* result = getNumberOccurences(text);
+    for (int i = 0; i < 10; i++) {
+        if (result[i]) {
+            std::cout << i << " -> " << result[i] << std::endl;
+        }
+    }
+    delete[] text;
+    delete[] result;
+}
+
+void ex5() {
+    char* text = new char[ARRAY_SIZE];
+    std::cin.getline(text, ARRAY_SIZE);
+    capitalize(text);
+    std::cout << text;
+    delete[] text;
+}
+
+void ex6() {
+    char* text = new char[ARRAY_SIZE];
+    std::cin.getline(text, ARRAY_SIZE);
+    char* result = excratctLastWord(text);
+    std::cout << result;
+    delete[] text;
+    delete[] result;
+}
+
+void ex7() {
+    char* text = new char[ARRAY_SIZE];
+    std::cin.getline(text, ARRAY_SIZE);
+    std::cout << wordCount(text);
+    delete[] text;
+}
+
+void ex8() {
+    char* text = new char[ARRAY_SIZE];
+    std::cin.getline(text, ARRAY_SIZE);
+    char* result = getMostCommonWord(text);
+    std::cout << result;
+    delete[] text;
+    delete[] result;
+}
+
+void ex9() {
+    char* text = new char[ARRAY_SIZE];
+    std::cin.getline(text, ARRAY_SIZE);
+    char* result = getSmallestWordLexicographically(text);
+    std::cout << result;
+    delete[] text;
+    delete[] result;
+}
+
+int main() {
+	//ex1();
+	/*
+	Hello World!
+	l
+	*/
+	//ex2();
+	/*
+	I am the worst of the worst 
+	worst
+	best
+	*/
+	//ex3();
+	/*
+	I am THe wOrst of THE worsT!!!
+	*/
+	//ex4();
+	/*
+	4231148
+	*/
+	//ex5();
+	/*
+	hello,  my frendo!
+	*/
+	//ex6();
+	/*
+	What is your name
+	*/
+	//ex7();
+	/*
+	Me? Why always me?
+	*/
+	//ex8();
+	/*
+	Me? Why always me? Why, why, why...
+	*/
+	//ex9();
+	/*
+	Write a function that accepts a string and returns the lexicographically smallest word.
+	*/
+}
